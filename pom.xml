@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.vodafone.gigthree</groupId>
+	<artifactId>codegen-mspc-ms</artifactId>
+	<version>${revision}</version>
+	<name>Microsoft Partner Centre - Micro-service</name>
+	<description>Global Integration Gateway 3.0 Microservice for Microsoft Partner Centre API integration</description>
+
+	<properties>
+		<revision>1.0.0-SNAPSHOT</revision>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<swagger.codegen.version>2.2.3-SNAPSHOT</swagger.codegen.version>
+		<swagger.version>1.5.13</swagger.version>
+		<springboot.version>1.4.1.RELEASE</springboot.version>
+		<springfox.version>2.7.0</springfox.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.kafka.version>1.1.1.RELEASE</spring.kafka.version>
+		<docker.maven.plugin.version>0.4.13</docker.maven.plugin.version>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<swagger-core-version>1.5.12</swagger-core-version>
+		<okhttp-version>2.7.5</okhttp-version>
+		<gson-version>2.6.2</gson-version>
+		<jodatime-version>2.9.3</jodatime-version>
+		<maven-plugin-version>1.0.0</maven-plugin-version>
+		<junit-version>4.12</junit-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<!-- Springfox Swagger-UI-->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+
+		<!-- Swagger codegen -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-core</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+
+		<!-- Spring boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>${springboot.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-feign</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+
+		<!-- lombok codegen -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+
+		<!-- Testing frameworks -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!--<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>logging-interceptor</artifactId>
+			<version>${okhttp-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
+		</dependency>-->
+		<!-- Bean Validation API support -->
+		<!--<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
+			<scope>provided</scope>
+		</dependency>-->
+		<!-- Bean Validation Impl. used to perform BeanValidation -->
+		<!--<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.2.2.Final</version>
+		</dependency>-->
+		<dependency>
+			<groupId>javax.el</groupId>
+			<artifactId>el-api</artifactId>
+			<version>2.2</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-parent</artifactId>
+				<version>1.4.1.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<!-- if spring-boot-parent is imported in dependencyManagement, packaging
+            needs to be configured -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${springboot.version}</version>
+				<executions>
+					<execution>
+						<id>package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<executable>true</executable>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.7.201606060606</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>create-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>${docker.maven.plugin.version}</version>
+				<configuration>
+					<imageName>mspc-ms</imageName>
+					<dockerDirectory>docker</dockerDirectory>
+					<resources>
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>${project.build.finalName}.jar</include>
+						</resource>
+					</resources>
+				</configuration>
+			</plugin>
+
+			<!-- Generate REST default interface from Swagger spec -->
+			<plugin>
+				<groupId>io.swagger</groupId>
+				<artifactId>swagger-codegen-maven-plugin</artifactId>
+				<version>${swagger.codegen.version}</version>
+				<executions>
+					<execution>
+						<id>microservice-mspc-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<modelPackage>com.vodafone.gigthree.mspc.model</modelPackage>
+							<apiPackage>com.vodafone.gigthree.mspc.service</apiPackage>
+							<inputSpec>src/main/resources/gwms-mspc.yaml</inputSpec>
+							<groupId>com.vodafone.gigthree</groupId>
+							<artifactId>mspc</artifactId>
+							<invokerPackage>com.vodafone.gigthree.mspc</invokerPackage>
+							<language>spring</language>
+							<configOptions>
+								<useBeanValidation>false</useBeanValidation>
+								<performBeanValidation>false</performBeanValidation>
+								<useTags>false</useTags>
+								<sourceFolder>src/main/java</sourceFolder>
+								<implicitHeaders>true</implicitHeaders>
+								<dateLibrary>java8</dateLibrary>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+								<basePackage>com.vodafone.gigthree.mspc</basePackage>
+								<configPackage>com.vodafone.gigthree.mspc.config</configPackage>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>apix-mspc-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<modelPackage>com.vodafone.gigthree.mspc.model.apixmspc</modelPackage>
+							<apiPackage>com.vodafone.gigthree.mspc.service.apixmspc</apiPackage>
+							<inputSpec>src/main/resources/apix-mspc.yaml</inputSpec>
+                            <groupId>com.vodafone.gigthree.mspc</groupId>
+                            <artifactId>apixmspc</artifactId>
+							<invokerPackage>com.vodafone.gigthree.mspc</invokerPackage>
+                            <language>spring</language>
+							<configOptions>
+								<useTags>false</useTags>
+								<useBeanValidation>false</useBeanValidation>
+								<performBeanValidation>false</performBeanValidation>
+								<library>spring-cloud</library>
+								<sourceFolder>src/main/java</sourceFolder>
+								<dateLibrary>java8</dateLibrary>
+								<implicitHeaders>true</implicitHeaders>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+								<basePackage>com.vodafone.gigthree.mspc.client.apixmspc</basePackage>
+								<configPackage>com.vodafone.gigthree.mspc.client.apixmspc.config</configPackage>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>apix-mspc-notification-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>src/main/resources/apix-mspcn.yaml</inputSpec>
+							<modelPackage>com.vodafone.gigthree.mspc.model.apixmspcn</modelPackage>
+							<apiPackage>com.vodafone.gigthree.mspc.service.apixmspcn</apiPackage>
+							<groupId>com.vodafone.gigthree.mspc</groupId>
+							<artifactId>apixmspcn</artifactId>
+							<invokerPackage>com.vodafone.gigthree.mspc</invokerPackage>
+							<language>spring</language>
+							<configOptions>
+								<useBeanValidation>false</useBeanValidation>
+								<performBeanValidation>false</performBeanValidation>
+								<useTags>false</useTags>
+								<library>spring-cloud</library>
+								<sourceFolder>src/main/java</sourceFolder>
+								<implicitHeaders>true</implicitHeaders>
+								<dateLibrary>java8</dateLibrary>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+
+								<basePackage>com.vodafone.gigthree.mspc.client.apixmspcn</basePackage>
+								<configPackage>com.vodafone.gigthree.mspc.client.apixmspcn.config</configPackage>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

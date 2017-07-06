@@ -1,0 +1,2808 @@
+---
+  swagger: "2.0"
+  info:
+    description: "The GIG 3.0 Microservice Developers have provided MS-PartnerCenter API interface to enable clients to manage accounts and subscriptions on behalf of their Customers who are resellers of Microsoft 365 Products."
+    version: "0.0.1"
+    title: "GIG3.0 Microservice MS-PartnerCenter API 0.1"
+    termsOfService: "Terms of Service"
+    contact:
+      name: "GIG 3.0 Microservice Developers"
+      email: "DL-MTC-TC-GW-MICROSERVICE@vodafone.com"
+    license:
+      name: "License of API"
+      url: "API License URL"
+  host: "localhost"
+  basePath: "/v1/mspc"
+  tags:
+    -
+      name: "purchase-add-on-subscription"
+      description: "Purchase an add on subscription"
+    -
+      name: "alter-subscription-quantity"
+      description: "Alter the quantity of a subscription"
+    -
+      name: "home document"
+      description: "Retrieves the Home Document"
+    -
+      name: "update-billing-profile"
+      description: "Update a Customer's Billing Profile"
+    -
+      name: "create-order"
+      description: "Creates a Customer Order"
+    -
+      name: "fetch-subscription"
+      description: "Fetch a subscription"
+    -
+      name: "partner-center-controller"
+      description: "Operations for managing Tenant accounts through the Microsoft Partner Center REST Api"
+    -
+      name: "suspend-subscription"
+      description: "Suspend a subscription"
+    -
+      name: "create-customer"
+      description: "Creates a new Customer"
+    -
+      name: "reactivate-subscription"
+      description: "Reactivate a subscription"
+  paths:
+    /customer:
+      post:
+        tags:
+          - "create-customer"
+        summary: "Creates a Customer"
+        description: "A customer is a reseller of MS products"
+        operationId: "createCustomerUsingPOST"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            in: "body"
+            name: "customer"
+            description: "customer"
+            required: true
+            schema:
+              $ref: "#/definitions/Customer"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/CreatedCustomer"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it from fulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+    /customer/{customer_id}/order:
+      post:
+        tags:
+          - "create-order"
+        summary: "Creates an Order"
+        description: "Creates an Order for a Customer"
+        operationId: "createOrderUsingPOST"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "order"
+            description: "order"
+            required: true
+            schema:
+              $ref: "#/definitions/override-order"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/CustomerOrder"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+    /customer/{customer_id}/order/{order_id}:
+      patch:
+        tags:
+          - "purchase-add-on-subscription"
+        summary: "Creates Purchase Add on Subscription"
+        description: "Creates a Purchase Add on Subscription for a Customer"
+        operationId: "purchaseAddOnSubscriptionUsingPATCH"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            name: "order_id"
+            in: "path"
+            description: "The Order belonging to the customer"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "purchaseAddOnSubscription"
+            description: "purchaseAddOnSubscription"
+            required: true
+            schema:
+              $ref: "#/definitions/PurchaseAddOnSubscription"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/PurchaseAddOnSubscriptionResponse"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it from fulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+    /customer/{customer_id}/profiles/billing:
+      put:
+        tags:
+          - "update-billing-profile"
+        summary: "Updates a Customer's Billing Profile"
+        description: "Updates a Customer's Billing Profile"
+        operationId: "updateBillingProfileUsingPUT"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "billingProfile"
+            description: "billingProfile"
+            required: true
+            schema:
+              $ref: "#/definitions/BillingProfile"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/BillingProfileResponse"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+    /customer/{customer_id}/subscriptions/{subscription_id}:
+      get:
+        tags:
+          - "fetch-subscription"
+        summary: "Retrieve a Subscription"
+        description: "Retrieve a Subscription"
+        operationId: "fetchSubscriptionUsingGET"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            name: "subscription_id"
+            in: "path"
+            description: "The Subscription belonging to the customer"
+            required: true
+            type: "string"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/Subscription"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+      put:
+        tags:
+          - "reactivate-subscription"
+        summary: "Reactivate a Subscription"
+        description: "Reactivate a Subscription"
+        operationId: "reactivateSubscriptionUsingPUT"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            name: "subscription_id"
+            in: "path"
+            description: "The Subscription belonging to the customer"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "inputSubscription"
+            description: "inputSubscription"
+            required: true
+            schema:
+              $ref: "#/definitions/ReactivateSubscription"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/Subscription"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+      delete:
+        tags:
+          - "suspend-subscription"
+        summary: "Suspend a Subscription"
+        description: "Suspend a Subscription"
+        operationId: "suspendSubscriptionUsingDELETE"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            name: "subscription_id"
+            in: "path"
+            description: "The Subscription belonging to the customer"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "inputSubscription"
+            description: "inputSubscription"
+            required: true
+            schema:
+              $ref: "#/definitions/SuspendSubscription"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/Subscription"
+          400:
+            description: "\n- The request is missing the mandatory parameter subscriptionId \n- The request parameter status is invalid"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+      patch:
+        tags:
+          - "alter-subscription-quantity"
+        summary: "Alter the quantity of a Subscription"
+        description: "Alter the quantity of a Subscription"
+        operationId: "alterSubscriptionUsingPATCH"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/vnd.vodafone.a42+json"
+        parameters:
+          -
+            name: "partner-domain"
+            in: "header"
+            description: "Purpose: To identify the calling client. Used to look up the OAuth client credentials from the KVM and as part of the cache key together with the api proxy name to cache the MS Azure access token."
+            required: true
+            type: "string"
+          -
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          -
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header."
+            required: false
+            type: "string"
+          -
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header"
+            required: false
+            type: "string"
+          -
+            name: "MS-RequestId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, used to ensure idempotency. In the case of a timeout, the retry call should include the same value. Upon receiving a response (success or business failure), the value should be reset for the next call. "
+            required: false
+            type: "string"
+          -
+            name: "MS-CorrelationId"
+            in: "header"
+            description: "Purpose: A unique identifier for the call, useful the logs and network traces for troubleshooting errors. The value should be reset for every call. All operations should include this header."
+            required: false
+            type: "string"
+          -
+            name: "X-Locale"
+            in: "header"
+            description: "Purpose: Optional. Specifies the language in which the rates are returned. Default is \"en-US\"."
+            required: false
+            type: "string"
+          -
+            name: "customer_id"
+            in: "path"
+            description: "Customer unique identifier"
+            required: true
+            type: "string"
+          -
+            name: "subscription_id"
+            in: "path"
+            description: "The Subscription belonging to the customer"
+            required: true
+            type: "string"
+          -
+            in: "body"
+            name: "inputSubscription"
+            description: "inputSubscription"
+            required: true
+            schema:
+              $ref: "#/definitions/ChangeQuantitySubscription"
+        responses:
+          200:
+            description: "OK"
+            schema:
+              $ref: "#/definitions/Subscription"
+          400:
+            description: "\n- There was a problem with the request data"
+            schema:
+              $ref: "#/definitions/A42Error"
+          404:
+            description: "URI does not represent a recognised resource "
+            schema:
+              $ref: "#/definitions/HTTP_404_Error"
+          405:
+            description: "the request method is not supported by this  resource"
+            schema:
+              $ref: "#/definitions/HTTP_405_Error"
+          406:
+            description: "The Accept header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_406_Error"
+          413:
+            description: "The  request payload exceeds a maximum size "
+            schema:
+              $ref: "#/definitions/HTTP_413_Error"
+          414:
+            description: "Request-URI is too long "
+            schema:
+              $ref: "#/definitions/HTTP_414_Error"
+          415:
+            description: "The value of the Content-Type header is invalid "
+            schema:
+              $ref: "#/definitions/HTTP_415_Error"
+          422:
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema:
+              $ref: "#/definitions/HTTP_422_Error"
+          500:
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema:
+              $ref: "#/definitions/A42GenericError"
+  definitions:
+    A42ErrorHelpLink:
+      type: "object"
+      required:
+        - "help"
+      properties:
+        help:
+          $ref: "#/definitions/HrefLink"
+    SelfLRT:
+      type: "object"
+      required:
+        - "href"
+        - "method"
+        - "title"
+        - "type"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/403f7721-7436-435f-a112-c861c847e556/order/8c08b6e5-3073-4d80-a561-ce1794e0e77f"
+          description: "A42 href"
+        title:
+          type: "string"
+          example: "Retrieve the Order"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+    HTTP_406_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/A42ErrorHelpLink"
+        error:
+          type: "string"
+          example: "invalid_request"
+        message:
+          type: "string"
+          example: "invalid_request"
+        description:
+          type: "string"
+          example: "The Accept header is invalid"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Bad request from PartnerFD"
+        backend_http_status_code:
+          type: "string"
+          example: "404"
+    Customer:
+      type: "object"
+      required:
+        - "billingProfile"
+        - "companyProfile"
+      properties:
+        allowDelegatedAccess:
+          type: "string"
+          example: "${true|false}"
+          description: "Allow delegated access - true or false"
+        relationshipToPartner:
+          type: "string"
+          example: "none"
+          description: "The Customer's relationship to the partner"
+        associatedPartnerId:
+          type: "string"
+          example: "$associatedPartnerId"
+        customDomains:
+          type: "array"
+          items:
+            type: "string"
+            example: "[$domain,$domain_two]"
+        attributes:
+          $ref: "#/definitions/CustomerAttributes"
+        userCredentials:
+          $ref: "#/definitions/UserCredentials"
+        billingProfile:
+          $ref: "#/definitions/BillingProfile"
+        companyProfile:
+          $ref: "#/definitions/CompanyProfile"
+    BillingProfileResponse:
+      type: "object"
+      required:
+        - "companyName"
+        - "culture"
+        - "defaultAddress"
+        - "email"
+        - "language"
+      properties:
+        attributes:
+          $ref: "#/definitions/BillingProfileAttributes"
+        companyName:
+          type: "string"
+          example: "some Company18179433222"
+          description: "The Customer's registered company/organization name"
+        culture:
+          type: "string"
+          example: "en-US"
+          description: "The Customer's preferred culture for communication and currency, such as \"en-US\"."
+        defaultAddress:
+          $ref: "#/definitions/DefaultAddressResponse"
+        email:
+          type: "string"
+          example: "someEmail@Outlook.com"
+          description: "The Customer's email address"
+        firstName:
+          type: "string"
+          example: "john"
+          description: "The Customer's first name"
+        id:
+          type: "string"
+          example: "a58ceba5-60ac-48e4-a0bc-2a855811807a"
+          description: "The Customer's unique billing profile identifier"
+        language:
+          type: "string"
+          example: "en"
+          description: "The Customer's default language. Two character language codes are supported - en and fr"
+        lastName:
+          type: "string"
+          example: "clitheroe"
+          description: "The Customer's last name"
+    CustomerOrder:
+      type: "object"
+      required:
+        - "attributes"
+        - "creationDate"
+        - "id"
+        - "links"
+        - "referenceCustomerId"
+      properties:
+        links:
+          $ref: "#/definitions/OrderLinkRelationType"
+        id:
+          type: "string"
+          example: "eddcac6-63b2-4c40-b0b6-f47e18301492"
+          description: "The Customer's Order id"
+        referenceCustomerId:
+          type: "string"
+          example: "c501c3c4-d776-40ef-9ecf-9cefb59442c1"
+          description: "The Customer Identifier"
+        billingCycle:
+          type: "string"
+          example: "unknown"
+          description: "The frequency with which the partner is billed for this order. The default is \"Monthly\" and is applied upon successful creation of the order. "
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "2017-04-10T16:02:25.983-07:00"
+          description: "The date the order was created, in date-time format. Applied upon successful creation of the order."
+        attributes:
+          $ref: "#/definitions/CustomerOrderAttributes"
+    Attributes:
+      type: "object"
+      properties:
+        ObjectType:
+          type: "string"
+    A42Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/A42ErrorHelpLink"
+        error:
+          type: "string"
+          example: "invalid_request"
+        message:
+          type: "string"
+          example: "invalid_request"
+        description:
+          type: "string"
+          example: "missing mandatory query parameter in the request"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Bad request from PartnerFD"
+        backend_http_status_code:
+          type: "string"
+          example: "404"
+    LinkRelationTypeContainer:
+      type: "object"
+      required:
+        - "home"
+        - "http://a42.vodafone.com/rels/mspc/customer/billingProfile"
+        - "http://a42.vodafone.com/rels/mspc/customer/companyProfile"
+        - "http://a42.vodafone.com/rels/mspc/customer/userCredentials"
+      properties:
+        home:
+          description: "home"
+          $ref: "#/definitions/CreatedCustomerHomeLRT"
+        http://a42.vodafone.com/rels/mspc/customer/companyProfile:
+          description: "http//a42.vodafone.com/rels/mspc/customer/companyProfile"
+          $ref: "#/definitions/CompanyProfileResponse"
+        http://a42.vodafone.com/rels/mspc/customer/billingProfile:
+          description: "http://a42.vodafone.com/rels/mspc/customer/billingProfile"
+          $ref: "#/definitions/BillingProfileResponse"
+        http://a42.vodafone.com/rels/mspc/customer/userCredentials:
+          description: "http://a42.vodafone.com/rels/mspc/customer/userCredentials"
+          $ref: "#/definitions/UserCredentialsResponse"
+    BillingProfile:
+      type: "object"
+      required:
+        - "companyName"
+        - "culture"
+        - "defaultAddress"
+        - "email"
+        - "language"
+      properties:
+        companyName:
+          type: "string"
+          example: "$companyName"
+          description: "The Customer's registered company/organization name"
+        culture:
+          type: "string"
+          example: "$culture"
+          description: "The Customer's preferred culture for communication and currency, such as \"en-US\"."
+        defaultAddress:
+          $ref: "#/definitions/DefaultAddress"
+        email:
+          type: "string"
+          example: "$email"
+          description: "The Customer's email address"
+        firstName:
+          type: "string"
+          example: "$firstName"
+          description: "The Customer's first name"
+        language:
+          type: "string"
+          example: "$language"
+          description: "The Customer's default language. Two character language codes are supported - en and fr"
+        lastName:
+          type: "string"
+          example: "$lastName"
+          description: "The Customer's last name"
+    HrefLink:
+      type: "object"
+      required:
+        - "href"
+      properties:
+        href:
+          type: "string"
+          example: "http://{dev_portal_domain/{error_documentation_endpoint}"
+          description: "Help href link on Developer Portal "
+    CustomerLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Create a Customer"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "POST"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/CustomerDataContainer"
+    Subscription:
+      type: "object"
+      required:
+        - "attributes"
+        - "autoRenewEnabled"
+        - "billingCycle"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "id"
+        - "links"
+        - "offerId"
+        - "offerName"
+        - "orderId"
+        - "isTrial"
+        - "partnerId"
+        - "quantity"
+        - "status"
+        - "suspensionReasons"
+        - "unitType"
+      properties:
+        links:
+          $ref: "#/definitions/SubscriptionLinkRelationTypeResponse"
+        id:
+          type: "string"
+          example: "968BA1CF-C146-4ADF-A300-308DCF718EEE"
+          description: "The subscription identifier"
+        offerName:
+          type: "string"
+          example: "Some friendly name"
+          description: "The offer name"
+        offerId:
+          type: "string"
+          example: "84A03D81-6B37-4D66-8D4A-FAEA24541538"
+          description: "The offer identifier"
+        friendlyName:
+          type: "string"
+          example: "new offer purchase"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        quantity:
+          type: "string"
+          example: "5"
+          description: "The number of licenses for a license-based subscription"
+        unitType:
+          type: "string"
+          example: "Licenses"
+          description: "The unit type"
+        isTrial:
+          type: "boolean"
+          example: false
+          description: "identifies if subscription is a trial subscription or not"
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "2017-01-25T23:01:08.693Z"
+          description: "Gets or sets the creation data, in date-time format"
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "2017-01-25T00:00:00Z"
+          description: "Gets or sets the effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another"
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "2018-02-10T00:00:00Z"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future"
+        status:
+          type: "string"
+          example: "active"
+          description: "The subscription status: \"none\", \"active\", \"suspended\", or \"deleted\""
+        autoRenewEnabled:
+          type: "boolean"
+          example: true
+          description: "Gets or sets a value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "license"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        billingCycle:
+          type: "string"
+          example: "monthly"
+          description: "Indicates the frequency with which the partner is billed for this order"
+        partnerId:
+          type: "string"
+          description: "The partner id"
+        suspensionReasons:
+          type: "array"
+          description: "Read-only. If the subscription was suspended, indicates why"
+          items:
+            type: "string"
+            example: "insufficient credit, funds not available"
+        contractType:
+          type: "string"
+          example: "subscription"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        orderId:
+          type: "string"
+          example: "2323232323"
+          description: "The id of the order that was placed to begin the subscription"
+        attributes:
+          $ref: "#/definitions/SubscriptionAttributesResponse"
+    SubscriptionSelfLRT:
+      type: "object"
+      required:
+        - "href"
+        - "method"
+        - "title"
+        - "type"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/403f7721-7436-435f-a112-c861c847e556/order/8c08b6e5-3073-4d80-a561-ce1794e0e77f/orderlineitems/0/subscriptions/388BE1A0-2F42-4C2B-842A-1CD2175B1F34"
+          description: "A42 href"
+        title:
+          type: "string"
+          example: "Retrieve the Subscription relating to the Customer's Order"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+    A42GenericError:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/A42ErrorHelpLink"
+        error:
+          type: "string"
+          example: "server_error"
+        message:
+          type: "string"
+          example: "server_error"
+        description:
+          type: "string"
+          example: "The authorization server encountered an unexpected condition that prevented it from fulfilling the request"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Bad request from PartnerFD"
+        backend_http_status_code:
+          type: "string"
+          example: "404"
+    SelfLRTResponse:
+      type: "object"
+      required:
+        - "href"
+        - "method"
+        - "title"
+        - "type"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/403f7721-7436-435f-a112-c861c847e556/subscription/8c08b6e5-3073-4d80-a561-ce1794e0e77f"
+          description: "A42 href"
+        title:
+          type: "string"
+          example: "Retrieve the Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+    SubscriptionReactivateLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/susbcriptions/{susbcriptionId}"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Reactivate a Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "PUT"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/SubscriptionDataContainer"
+    SubscriptionDataContainer:
+      type: "object"
+      required:
+        - "attributes"
+        - "autoRenewEnabled"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "friendlyName"
+        - "id"
+        - "orderId"
+        - "parentSubscriptionId"
+        - "partnerId"
+        - "quantity"
+        - "status"
+        - "unitType"
+      properties:
+        attributes:
+          example: "$attributes"
+          description: "The metadata attributes corresponding to the subscription"
+          $ref: "#/definitions/SubscriptionAttributes"
+        autoRenewEnabled:
+          type: "string"
+          example: "$autoRenewEnabled"
+          description: "A value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "$billingType"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "$commitmentEndDate"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future."
+        contractType:
+          type: "string"
+          example: "$partnerId"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "$creationDate"
+          description: "The creation date, in date-time format."
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "$effectiveStartDate"
+          description: "The effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another."
+        friendlyName:
+          type: "string"
+          example: "$friendlyName"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        id:
+          type: "string"
+          example: "$Id"
+          description: "The Subscription's unique identifier"
+        orderId:
+          type: "string"
+          example: "$orderId"
+          description: "The id of the order that was placed to begin the subscription"
+        parentSubscriptionId:
+          type: "string"
+          example: "$parentSubscriptionId"
+          description: "The parent subscription identifier."
+        partnerId:
+          type: "string"
+          example: "$partnerId"
+          description: "MPN ID of the reseller of record, used in the indirect partner model."
+        quantity:
+          type: "integer"
+          format: "int32"
+          example: "$quantity"
+          description: "Read-only. The quantity. For example, in case of license-based billing, this property is set to the license count."
+        status:
+          type: "string"
+          example: "$status"
+          description: "The subscription status: \"none\", \"active\", \"suspended\", or \"deleted\"."
+        unitType:
+          type: "string"
+          example: "$unitType"
+          description: "The units defining Quantity for the subscription."
+    override-order:
+      type: "object"
+      required:
+        - "billingCycle"
+        - "lineItems"
+        - "referenceCustomerId"
+      properties:
+        billingCycle:
+          type: "string"
+          example: "$billingCycle"
+        referenceCustomerId:
+          type: "string"
+          example: "$referenceCustomerId"
+        lineItems:
+          type: "array"
+          items:
+            $ref: "#/definitions/LineItem"
+    PurchaseAddOnSubscriptionOrderLineItem:
+      type: "object"
+      required:
+        - "lineItemNumber"
+        - "links"
+        - "offerId"
+        - "quantity"
+      properties:
+        lineItemNumber:
+          type: "string"
+          example: "0"
+          description: "Each line item in the collection gets a unique line number, counting up from 0 to count-1"
+        offerId:
+          type: "string"
+          example: "84A03D81-6B37-4D66-8D4A-FAEA24541538"
+          description: "The offer identifier"
+        friendlyName:
+          type: "string"
+          example: "new offer purchase"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        quantity:
+          type: "string"
+          example: "5"
+          description: "The number of licenses for a license-based subscription"
+        links:
+          $ref: "#/definitions/SubscriptionLinkRelationTypeContainer"
+    HomeDocument:
+      type: "object"
+      required:
+        - "links"
+      properties:
+        links:
+          $ref: "#/definitions/HomeDocumentContainer"
+    PurchaseAddOnSubscription:
+      type: "object"
+      required:
+        - "billingCycle"
+        - "lineItems"
+        - "referenceCustomerId"
+      properties:
+        billingCycle:
+          type: "string"
+          example: "$billingCycle"
+        referenceCustomerId:
+          type: "string"
+          example: "$referenceCustomerId"
+        lineItems:
+          type: "array"
+          items:
+            $ref: "#/definitions/LineItem"
+    PurchaseAddOnSubscriptionResponse:
+      type: "object"
+      required:
+        - "attributes"
+        - "creationDate"
+        - "id"
+        - "links"
+        - "referenceCustomerId"
+      properties:
+        links:
+          $ref: "#/definitions/PurchaseAddOnSubscriptionLinkRelationType"
+        id:
+          type: "string"
+          example: "eddcac6-63b2-4c40-b0b6-f47e18301492"
+          description: "The Customer's Order id"
+        referenceCustomerId:
+          type: "string"
+          example: "c501c3c4-d776-40ef-9ecf-9cefb59442c1"
+          description: "The Customer Identifier"
+        billingCycle:
+          type: "string"
+          example: "unknown"
+          description: "The frequency with which the partner is billed for this order. The default is \"Monthly\" and is applied upon successful creation of the order. "
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "2017-04-10T16:02:25.983-07:00"
+          description: "The date the order was created, in date-time format. Applied upon successful creation of the order."
+        attributes:
+          $ref: "#/definitions/CustomerOrderAttributes"
+    BillingProfileAttributes:
+      type: "object"
+      required:
+        - "etag"
+        - "objectType"
+      properties:
+        etag:
+          type: "string"
+          example: "02fawefaw233g3"
+          description: "etag"
+        objectType:
+          type: "string"
+          example: "CustomerBillingProfile"
+          description: "type of resource"
+    CompanyProfileResponse:
+      type: "object"
+      required:
+        - "domain"
+      properties:
+        attributes:
+          $ref: "#/definitions/CompanyProfileAttributes"
+        companyName:
+          type: "string"
+          example: "The Joiner company"
+          description: "The Customer's registered Company name"
+        domain:
+          type: "string"
+          example: "SampleApplication1047419322.onmicrosoft.com"
+          description: "The Customer's Company domain name such as contoso.onmicrosoft.com"
+        tenantId:
+          type: "string"
+          example: "dfd8cc0a-c592-468c-8461-869a38d24738"
+          description: "The Customer's tenant id"
+    LineItemAttributes:
+      type: "object"
+      required:
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "OrderLineItem"
+          description: "type of resource"
+    SubscriptionAlterQuantityLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/susbcriptions/{susbcriptionId}"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Alter quantity of a Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "PATCH"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/SubscriptionDataContainer"
+    CompanyProfileAttributes:
+      type: "object"
+      required:
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "CustomerCompanyProfile"
+          description: "type of resource"
+    OrderLinkRelationType:
+      type: "object"
+      required:
+        - "home"
+        - "http://a42.vodafone.com/rels/customer/order/orderlineitems"
+        - "self"
+      properties:
+        home:
+          description: "home"
+          $ref: "#/definitions/HomeLRT"
+        self:
+          description: "self"
+          $ref: "#/definitions/SelfLRT"
+        http://a42.vodafone.com/rels/customer/order/orderlineitems:
+          type: "array"
+          description: "http://a42.vodafone.com/rels/customer/order/orderlineitems"
+          items:
+            $ref: "#/definitions/OrderLineItem"
+    SubscriptionByIdLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/susbcriptions/{susbcriptionId}"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Fetch a Subscription by Id"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/SubscriptionDataContainer"
+    SubscriptionAttributesResponse:
+      type: "object"
+      required:
+        - "etag"
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "Subscription"
+          description: "type of resource"
+        etag:
+          type: "string"
+          example: "eyJpZCI6Ijk2OGJhMWNmLWMxNDYtNGFkZi1hMzAwLTMwOGRjZjcxOGVlZSIsInZlcnNpb24iOjF9"
+          description: "etag"
+    DefaultAddress:
+      type: "object"
+      properties:
+        addressLine1:
+          type: "string"
+          example: "$addressLine1"
+          description: "The Customer's address line1"
+        addressLine2:
+          type: "object"
+          example: "$addressLine2"
+          description: "The Customer's address line2"
+        city:
+          type: "string"
+          example: "$city"
+          description: "The Customer's city"
+        country:
+          type: "string"
+          example: "$country"
+          description: "The Customer's country"
+        firstName:
+          type: "string"
+          example: "$firstName"
+          description: "The Customer's first name"
+        lastName:
+          type: "string"
+          example: "$lastName"
+          description: "The Customer's last name"
+        phoneNumber:
+          type: "string"
+          example: "$phoneNumber"
+          description: "The Customer's phone number"
+        postalCode:
+          type: "string"
+          example: "$postalCode"
+          description: "The Customer's postal code"
+        region:
+          type: "string"
+          example: "$region"
+          description: "The Customer's region"
+        state:
+          type: "string"
+          example: "$state"
+          description: "The Customer's state"
+    SubscriptionOrderLineItem:
+      type: "object"
+      required:
+        - "links"
+        - "subscription"
+      properties:
+        subscription:
+          type: "string"
+          example: "0"
+        links:
+          $ref: "#/definitions/SubscriptionLinkRelationType"
+    CreatedCustomer:
+      type: "object"
+      required:
+        - "attributes"
+        - "commerceId"
+        - "id"
+        - "links"
+        - "relationshipToPartner"
+      properties:
+        links:
+          $ref: "#/definitions/LinkRelationTypeContainer"
+        id:
+          type: "string"
+          example: "403f7721-7436-435f-a112-c861c847e556"
+          description: "the tenant id of the customer"
+        commerceId:
+          type: "string"
+          example: "0a4ce58a-6f96-4273-8035-d9c7d31b9ba4"
+          description: "the commerce id of the customer"
+        relationshipToPartner:
+          type: "string"
+          example: "none"
+          description: "the relationship of the customer to the partner"
+        customDomain:
+          type: "array"
+          items:
+            type: "string"
+        associatedPartnerId:
+          type: "string"
+          example: "none"
+          description: "The indirect reseller associated to this customer account. This value can be set only by indirect CSP partners."
+        attributes:
+          $ref: "#/definitions/CustomerAttributes"
+    OrderLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/order"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Create an Order"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "POST"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/override-order"
+    CustomerAttributes:
+      type: "object"
+      required:
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "Customer"
+          description: "type of resource"
+    UserCredentials:
+      type: "object"
+      required:
+        - "username"
+        - "password"
+      properties:
+        username:
+          type: "string"
+          example: "$username"
+          description: "Customer's username"
+        password:
+          type: "string"
+          example: "$password"
+          description: "Customer's password"
+    SubscriptionParentSubscription:
+      type: "object"
+      required:
+        - "href"
+        - "method"
+        - "title"
+        - "type"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/403f7721-7436-435f-a112-c861c847e556/subscriptions/8c08b6e5-3073-4d80-a561-ce1794e0e88f"
+          description: "A42 href"
+        title:
+          type: "string"
+          example: "Retrieve the parent Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+    SubscriptionLinkRelationTypeResponse:
+      type: "object"
+      required:
+        - "home"
+        - "self"
+      properties:
+        home:
+          description: "home"
+          $ref: "#/definitions/HomeLRT"
+        self:
+          description: "self"
+          $ref: "#/definitions/SelfLRTResponse"
+    SubscriptionSuspendLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/susbcriptions/{susbcriptionId}"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Suspend a Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "DELETE"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/SubscriptionDataContainer"
+    CustomerOrderAttributes:
+      type: "object"
+      required:
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "Order"
+          description: "type of resource"
+    HomeDocumentContainer:
+      type: "object"
+      properties:
+        self:
+          description: "self"
+          $ref: "#/definitions/CreatedCustomerHomeLRT"
+        http://a42.vodafone.com/rels/mspc/customer/alter-subscription-quantity:
+          $ref: "#/definitions/SubscriptionAlterQuantityLRT"
+        http://a42.vodafone.com/rels/mspc/customer/create-customer:
+          $ref: "#/definitions/CustomerLRT"
+        http://a42.vodafone.com/rels/mspc/customer/fetch-subscription-by-id:
+          $ref: "#/definitions/SubscriptionByIdLRT"
+        http://a42.vodafone.com/rels/mspc/customer/order/create-order:
+          $ref: "#/definitions/OrderLRT"
+        http://a42.vodafone.com/rels/mspc/customer/order/purchase-add-on-subscription:
+          $ref: "#/definitions/PurchaseAddOnSubscriptionLRT"
+        http://a42.vodafone.com/rels/mspc/customer/reactivate-subscription:
+          $ref: "#/definitions/SubscriptionReactivateLRT"
+        http://a42.vodafone.com/rels/mspc/customer/suspend-subscription:
+          $ref: "#/definitions/SubscriptionSuspendLRT"
+    CustomerDataContainer:
+      type: "object"
+      required:
+        - "billingProfile"
+        - "companyProfile"
+      properties:
+        allowDelegatedAccess:
+          type: "string"
+          example: "${true|false}"
+          description: "Allow delegated access - true or false"
+        associatedPartnerId:
+          type: "string"
+          example: "$associatedPartnerId"
+        relationshipToPartner:
+          type: "string"
+          example: "$relationshipToPartner"
+          description: "The Customer's relationship to the partner"
+        userCredentials:
+          $ref: "#/definitions/UserCredentials"
+        customDomains:
+          type: "array"
+          items:
+            type: "string"
+            example: "[$domain,$domain_two]"
+        attributes:
+          $ref: "#/definitions/Attributes"
+        billingProfile:
+          description: "The Customer's Billing Profile"
+          $ref: "#/definitions/BillingProfile"
+        companyProfile:
+          description: "The Customer's Company Profile"
+          $ref: "#/definitions/CompanyProfile"
+    ReactivateSubscription:
+      type: "object"
+      required:
+        - "autoRenewEnabled"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "friendlyName"
+        - "id"
+        - "orderId"
+        - "parentSubscriptionId"
+        - "partnerId"
+        - "quantity"
+        - "status"
+        - "unitType"
+      properties:
+        attributes:
+          $ref: "#/definitions/SubscriptionAttributes"
+        autoRenewEnabled:
+          type: "string"
+          example: "$autoRenewEnabled"
+          description: "A value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "$billingType"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "$commitmentEndDate"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future."
+        contractType:
+          type: "string"
+          example: "subscription"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "$creationDate"
+          description: "The creation date, in date-time format."
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "$effectiveStartDate"
+          description: "The effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another."
+        friendlyName:
+          type: "string"
+          example: "$friendlyName"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        id:
+          type: "string"
+          example: "$Id"
+          description: "The Subscription's unique identifier"
+        orderId:
+          type: "string"
+          example: "$orderId"
+          description: "The id of the order that was placed to begin the subscription"
+        parentSubscriptionId:
+          type: "string"
+          example: "$parentSubscriptionId"
+          description: "The parent subscription identifier."
+        partnerId:
+          type: "string"
+          example: "$partnerId"
+          description: "MPN ID of the reseller of record, used in the indirect partner model."
+        quantity:
+          type: "integer"
+          format: "int32"
+          example: "$quantity"
+          description: "Read-only. The quantity. For example, in case of license-based billing, this property is set to the license count."
+        status:
+          type: "string"
+          example: "active"
+          description: "The subscription status: \"active\""
+        unitType:
+          type: "string"
+          example: "$unitType"
+          description: "The units defining Quantity for the subscription."
+    ChangeQuantitySubscription:
+      type: "object"
+      required:
+        - "autoRenewEnabled"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "friendlyName"
+        - "id"
+        - "orderId"
+        - "parentSubscriptionId"
+        - "status"
+        - "partnerId"
+        - "quantity"
+        - "unitType"
+      properties:
+        attributes:
+          $ref: "#/definitions/SubscriptionAttributes"
+        autoRenewEnabled:
+          type: "string"
+          example: "$autoRenewEnabled"
+          description: "A value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "$billingType"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "$commitmentEndDate"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future."
+        contractType:
+          type: "string"
+          example: "subscription"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "$creationDate"
+          description: "The creation date, in date-time format."
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "$effectiveStartDate"
+          description: "The effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another."
+        friendlyName:
+          type: "string"
+          example: "$friendlyName"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        id:
+          type: "string"
+          example: "$Id"
+          description: "The Subscription's unique identifier"
+        orderId:
+          type: "string"
+          example: "$orderId"
+          description: "The id of the order that was placed to begin the subscription"
+        parentSubscriptionId:
+          type: "string"
+          example: "$parentSubscriptionId"
+          description: "The parent subscription identifier."
+        partnerId:
+          type: "string"
+          example: "$partnerId"
+          description: "MPN ID of the reseller of record, used in the indirect partner model."
+        status:
+          type: "string"
+          example: "$status"
+          description: "The subscription status"
+        quantity:
+          type: "integer"
+          format: "int32"
+          example: "$quantity"
+          description: "Read-only. The quantity. For example, in case of license-based billing, this property is set to the license count."
+        unitType:
+          type: "string"
+          example: "$unitType"
+          description: "The units defining Quantity for the subscription."
+    SuspendSubscription:
+      type: "object"
+      required:
+        - "autoRenewEnabled"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "friendlyName"
+        - "id"
+        - "orderId"
+        - "parentSubscriptionId"
+        - "partnerId"
+        - "quantity"
+        - "status"
+        - "unitType"
+      properties:
+        attributes:
+          $ref: "#/definitions/SubscriptionAttributes"
+        autoRenewEnabled:
+          type: "string"
+          example: "$autoRenewEnabled"
+          description: "A value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "$billingType"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "$commitmentEndDate"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future."
+        contractType:
+          type: "string"
+          example: "subscription"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "$creationDate"
+          description: "The creation date, in date-time format."
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "$effectiveStartDate"
+          description: "The effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another."
+        friendlyName:
+          type: "string"
+          example: "$friendlyName"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        id:
+          type: "string"
+          example: "$Id"
+          description: "The Subscription's unique identifier"
+        orderId:
+          type: "string"
+          example: "$orderId"
+          description: "The id of the order that was placed to begin the subscription"
+        parentSubscriptionId:
+          type: "string"
+          example: "$parentSubscriptionId"
+          description: "The parent subscription identifier."
+        partnerId:
+          type: "string"
+          example: "$partnerId"
+          description: "MPN ID of the reseller of record, used in the indirect partner model."
+        quantity:
+          type: "integer"
+          format: "int32"
+          example: "$quantity"
+          description: "Read-only. The quantity. For example, in case of license-based billing, this property is set to the license count."
+        status:
+          type: "string"
+          example: "suspended"
+          description: "The subscription status: \"suspended\""
+        unitType:
+          type: "string"
+          example: "$unitType"
+          description: "The units defining Quantity for the subscription."
+    SubscriptionAttributes:
+      type: "object"
+      required:
+        - "objectType"
+      properties:
+        objectType:
+          type: "string"
+          example: "Subscription"
+          description: "type of resource"
+        etag:
+          type: "string"
+          example: "eyJpZCI6Ijk2OGJhMWNmLWMxNDYtNGFkZi1hMzAwLTMwOGRjZjcxOGVlZSIsInZlcnNpb24iOjF9"
+          description: "etag"
+    SubscriptionLinkRelationTypeContainer:
+      type: "object"
+      properties:
+        http://a42.vodafone.com/rels/customer/order/orderlineitems/subscription:
+          description: "http://a42.vodafone.com/rels/customer/order/orderlineitems/subscription"
+          $ref: "#/definitions/SubscriptionOrderLineItem"
+    LineItem:
+      type: "object"
+      required:
+        - "lineItemAttributes"
+        - "lineItemNumber"
+        - "offerId"
+        - "quantity"
+      properties:
+        lineItemNumber:
+          type: "string"
+          example: "$lineItemNumber"
+          description: "Each line item in the collection gets a unique line number, counting up from 0 to count-1"
+        offerId:
+          type: "string"
+          example: "$offerId"
+          description: "The offer identifier"
+        friendlyName:
+          type: "string"
+          example: "$friendlyName"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        quantity:
+          type: "string"
+          example: "$quantity"
+          description: "The number of licenses for a license-based subscription"
+        partnerIdOnRecord:
+          type: "string"
+          example: "$partnerIdOnRecord"
+          description: "When an indirect provider places an order on behalf of an indirect reseller, populate this field with the MPN ID of the indirect reseller only. This ensures proper accounting for incentives"
+        lineItemAttributes:
+          $ref: "#/definitions/LineItemAttributes"
+    SubscriptionLinkRelationType:
+      type: "object"
+      required:
+        - "self"
+      properties:
+        self:
+          description: "self"
+          $ref: "#/definitions/SubscriptionSelfLRT"
+    SuspendSubscriptionResponse:
+      type: "object"
+      required:
+        - "attributes"
+        - "autoRenewEnabled"
+        - "billingCycle"
+        - "billingType"
+        - "commitmentEndDate"
+        - "contractType"
+        - "creationDate"
+        - "effectiveStartDate"
+        - "id"
+        - "offerId"
+        - "offerName"
+        - "orderId"
+        - "parentSubscriptionId"
+        - "partnerId"
+        - "quantity"
+        - "status"
+        - "suspensionReasons"
+        - "unitType"
+      properties:
+        id:
+          type: "string"
+          example: "968BA1CF-C146-4ADF-A300-308DCF718EEE"
+          description: "The subscription identifier"
+        offerName:
+          type: "string"
+          example: "Some friendly name"
+          description: "The offer name"
+        offerId:
+          type: "string"
+          example: "84A03D81-6B37-4D66-8D4A-FAEA24541538"
+          description: "The offer identifier"
+        friendlyName:
+          type: "string"
+          example: "new offer purchase"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        quantity:
+          type: "string"
+          example: "5"
+          description: "The number of licenses for a license-based subscription"
+        unitType:
+          type: "string"
+          example: "Licenses"
+          description: "The unit type"
+        parentSubscriptionId:
+          type: "string"
+          example: "1C2B75C1-74A5-472A-A729-7F8CEFC477F9"
+          description: "Gets or sets the parent subscription identifier"
+        creationDate:
+          type: "string"
+          format: "string"
+          example: "2017-01-25T23:01:08.693Z"
+          description: "Gets or sets the creation data, in date-time format"
+        effectiveStartDate:
+          type: "string"
+          format: "string"
+          example: "2017-01-25T00:00:00Z"
+          description: "Gets or sets the effective start date for this subscription, in date-time format. It is used to back date a migrated subscription or to align it with another"
+        commitmentEndDate:
+          type: "string"
+          format: "string"
+          example: "2018-02-10T00:00:00Z"
+          description: "The commitment end date for this subscription, in date-time format. For subscriptions which are not autorenewable, this represents a date far, far away in the future"
+        status:
+          type: "string"
+          example: "active"
+          description: "The subscription status: \"none\", \"active\", \"suspended\", or \"deleted\""
+        autoRenewEnabled:
+          type: "boolean"
+          example: true
+          description: "Gets or sets a value indicating whether the subscription is renewed automatically"
+        billingType:
+          type: "string"
+          example: "license"
+          description: "Specifies how the subscription is billed: \"none\", \"usage\", or \"license\""
+        billingCycle:
+          type: "string"
+          example: "monthly"
+          description: "Indicates the frequency with which the partner is billed for this order"
+        partnerId:
+          type: "string"
+          description: "The partner id"
+        suspensionReasons:
+          type: "array"
+          description: "Read-only. If the subscription was suspended, indicates why"
+          items:
+            type: "string"
+        contractType:
+          type: "string"
+          example: "subscription"
+          description: "Read-only. The type of contract: \"subscription\", \"productKey\", or \"redemptionCode\""
+        orderId:
+          type: "string"
+          example: "2323232323"
+          description: "The id of the order that was placed to begin the subscription"
+        attributes:
+          $ref: "#/definitions/SubscriptionAttributesResponse"
+    CompanyProfile:
+      type: "object"
+      required:
+        - "domain"
+      properties:
+        attributes:
+          $ref: "#/definitions/CompanyProfileAttributes"
+        companyName:
+          type: "string"
+          example: "$companyName"
+          description: "The Customer's registered Company name"
+        domain:
+          type: "string"
+          example: "$domain"
+          description: "The Customer's Company domain name such as contoso.onmicrosoft.com"
+        tenantId:
+          type: "string"
+          example: "$tenantId"
+          description: "The Customer's tenant id"
+    PurchaseAddOnSubscriptionLRT:
+      type: "object"
+      required:
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties:
+        template:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc/customer/{customerId}/order/{orderId}"
+          description: "A42 template"
+        title:
+          type: "string"
+          example: "Purchase an Add on Subscription"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "PATCH"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data:
+          $ref: "#/definitions/PurchaseAddOnSubscription"
+    DefaultAddressResponse:
+      type: "object"
+      properties:
+        addressLine1:
+          type: "string"
+          example: "One Microsoft Way"
+          description: "The Customer's address line1"
+        addressLine2:
+          type: "object"
+          example: "off ridgeway"
+          description: "The Customer's address line2"
+        city:
+          type: "string"
+          example: "Redmond"
+          description: "The Customer's city"
+        country:
+          type: "string"
+          example: "US"
+          description: "The Customer's country"
+        firstName:
+          type: "string"
+          example: "Tania"
+          description: "The Customer's first name"
+        lastName:
+          type: "string"
+          example: "Carr"
+          description: "The Customer's last name"
+        phoneNumber:
+          type: "string"
+          example: "+13423423423423"
+          description: "The Customer's phone number"
+        postalCode:
+          type: "string"
+          example: "98052"
+          description: "The Customer's postal code"
+        region:
+          type: "string"
+          description: "The Customer's region"
+        state:
+          type: "string"
+          example: "WA"
+          description: "The Customer's state"
+    HomeLRT:
+      type: "object"
+      required:
+        - "href"
+        - "method"
+        - "title"
+        - "type"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc"
+          description: "A42 href"
+        title:
+          type: "string"
+          example: "Retrieve Home Document"
+          description: "A42 title"
+        method:
+          type: "string"
+          example: "GET"
+          description: "A42 HTTP Verb"
+        type:
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+    OrderLineItem:
+      type: "object"
+      required:
+        - "lineItemNumber"
+        - "links"
+        - "offerId"
+        - "quantity"
+        - "subscriptionId"
+      properties:
+        lineItemNumber:
+          type: "string"
+          example: "0"
+          description: "Each line item in the collection gets a unique line number, counting up from 0 to count-1"
+        offerId:
+          type: "string"
+          example: "84A03D81-6B37-4D66-8D4A-FAEA24541538"
+          description: "The offer identifier"
+        friendlyName:
+          type: "string"
+          example: "new offer purchase"
+          description: "The friendly name for the subscription defined by the partner to help disambiguate"
+        quantity:
+          type: "string"
+          example: "5"
+          description: "The number of licenses for a license-based subscription"
+        subscriptionId:
+          type: "string"
+          example: "BA3D14ED-CAF3-4D68-BBBB-79CA9380FC26"
+          description: "The subscription id for the respective line order item"
+        links:
+          $ref: "#/definitions/SubscriptionLinkRelationTypeContainer"
+    CreatedCustomerHomeLRT:
+      type: "object"
+      required:
+        - "href"
+      properties:
+        href:
+          type: "string"
+          example: "https://{apix.endpoint}/v1/mspc"
+          description: "A42 href"
+    UserCredentialsResponse:
+      type: "object"
+      properties:
+        password:
+          type: "string"
+          example: "=;;n.=s97z"
+          description: "The Customer's password"
+        userName:
+          type: "string"
+          example: "admin"
+          description: "The Customer's username"
+    PurchaseAddOnSubscriptionLinkRelationType:
+      type: "object"
+      required:
+        - "home"
+        - "http://a42.vodafone.com/rels/customer/order/orderlineitems"
+        - "self"
+      properties:
+        home:
+          description: "home"
+          $ref: "#/definitions/HomeLRT"
+        self:
+          description: "self"
+          $ref: "#/definitions/SelfLRT"
+        http://a42.vodafone.com/rels/customer/order/orderlineitems:
+          type: "array"
+          description: "http://a42.vodafone.com/rels/customer/order/orderlineitems"
+          items:
+            $ref: "#/definitions/PurchaseAddOnSubscriptionOrderLineItem"
+    HTTP_404_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Resource Not Found"
+        message:
+          type: "string"
+          example: "Resource Not Found"
+        description:
+          type: "string"
+          example: "URI does not represent a recognised resource"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Bad request from PartnerFD. Customer id is required"
+        backend_http_status_code:
+          type: "string"
+          example: "404"
+    HTTP_429_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Too Many Requests"
+        message:
+          type: "string"
+          example: "Too Many Requests"
+        description:
+          type: "string"
+          example: "Api Quota limit reached"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Too many requests"
+        backend_http_status_code:
+          type: "string"
+          example: "429"
+    HTTP_413_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Payload Too Large"
+        message:
+          type: "string"
+          example: "Payload Too Large"
+        description:
+          type: "string"
+          example: "The request payload exceeds a maximum size"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "The request payload exceeds the maximum size"
+        backend_http_status_code:
+          type: "string"
+          example: "413"
+    HTTP_414_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Request URI Too Long"
+        message:
+          type: "string"
+          example: "Request URI Too Long"
+        description:
+          type: "string"
+          example: "Request-URI is too long"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Request URI too long"
+        backend_http_status_code:
+          type: "string"
+          example: "414"
+    HTTP_415_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Unsupported Media Type"
+        message:
+          type: "string"
+          example: "Unsupported Media Type"
+        description:
+          type: "string"
+          example: "The value of the Content-Type header is invalid"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Unsupported media type."
+        backend_http_status_code:
+          type: "string"
+          example: "415"
+    HTTP_405_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Method Not Allowed"
+        message:
+          type: "string"
+          example: "Method Not Allowed"
+        description:
+          type: "string"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Method not allowed by PartnerCentreApiController"
+        backend_http_status_code:
+          type: "string"
+          example: "405"
+    HTTP_422_Error:
+      type: "object"
+      required:
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties:
+        links:
+          $ref: "#/definitions/ErrorHelpLink"
+        error:
+          type: "string"
+          example: "Unprocessable Entity"
+        message:
+          type: "string"
+          example: "Unprocessable Entity"
+        description:
+          type: "string"
+          example: "The request was well-formed but was unable to be followed due to semantic errors"
+        transactionId:
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+        backend_error:
+          type: "string"
+          example: "Required parameters are not having correct value. Error from PartnerCentreFD"
+        backend_http_status_code:
+          type: "string"
+          example: "422"
+    ErrorHelpLink:
+      type: "object"
+      required:
+        - "href"
+      properties:
+        href:
+          type: "string"
+          example: "http://{dev_portal_domain}/{error_documentation_endpoint}"
+          description: "Help href link on Developer Portal "
+    LinkRelationTypes:
+      type: "object"
+      properties:
+        links:
+          type: "object"
+          additionalProperties:
+            $ref: "#/definitions/LinkRelation"
+    LinkRelation:
+      type: "object"
+      required:
+        - "title"
+      properties:
+        describedBy:
+          type: "string"
+        method:
+          type: "string"
+        template:
+          type: "string"
+        title:
+          type: "string"
+          description: "my title"
+        type:
+          type: "string"

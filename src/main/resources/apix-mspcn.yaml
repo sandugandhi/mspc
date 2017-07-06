@@ -1,0 +1,829 @@
+---
+  swagger: "2.0"
+  info: 
+    description: "The MS Partner Center Notifications API provides an A42 interface that enables clients to nofify an OpCo that <br></br> a Microsoft Reseller Tenant account has been created via the Microsoft Partner Center API or <br></br> a subscription has been provisioned for a given Tenant via the Microsoft Partner center API or <br></br> a purchase addon subscription has been bought for a given Tenant account via the Microsoft Partner Center API"
+    version: "0.0.1"
+    title: "MS-PartnerCenterNotifications API 0.1"
+    termsOfService: "Terms of Service"
+    contact: 
+      name: "Developer Portal Administrator"
+      email: "apix@vodafone.com"
+    license: 
+      name: "License of API"
+      url: "https://apixdev.developer.vodafone.com/licence"
+  host: "localhost:9000"
+  basePath: "/v1/mspcn"
+  tags: 
+    - 
+      name: "home-document"
+      description: "Retrieves the Home Document"
+    - 
+      name: "create-subscription-notification"
+      description: "Notifies the OpCo of the provisioning of a Tenant's Subscription via the MS Partner Center API"
+    - 
+      name: "service-notification-controller"
+      description: "Operations for sending notifications to the OpCo when a Tenant account has been created via the Microsoft Partner Center API or a subscription has been provisioned or updated"
+    - 
+      name: "create-account-notification"
+      description: "Notifies the OpCo that an MS Tenant Account has been created via the MS Partner Center API"
+    - 
+      name: "update-subscription-notification"
+      description: "Notifies the OpCo of changes to a Tenant's Subscription via the MS Partner Center API"
+  paths: 
+    /event/account:
+      post: 
+        tags: 
+          - "create-account-notification"
+        summary: "Publishes an Account notification event to the OpCo"
+        description: "Notifies the OpCo of an MS Reseller account being created"
+        operationId: "accountNotificationUsingPOST"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/vnd.vodafone.a42+json"
+        parameters: 
+          - 
+            name: "Authorization"
+            in: "header"
+            description: "Purpose: Enables the developer application access to the request resource. Contains the APIX OAuth token as Bearer token"
+            required: true
+            type: "string"
+          - 
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          - 
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            in: "body"
+            name: "accountEvent"
+            description: "accountEvent"
+            required: true
+            schema: 
+              $ref: "#/definitions/AccountEvent"
+        responses: 
+          200: 
+            description: "OK"
+            schema: 
+              type: "object"
+          400: 
+            description: "\n- The request is missing the mandatory parameter opcoId \n- The request is missing the mandatory parameter partnerId \n- The request is missing the mandatory parameter customerId \n- The request is missing the mandatory parameter partnerNodeId \n- The request is missing the mandatory parameter requestId \n- The request is missing the mandatory parameter status \n- The request payload is not in a valid JSON format \n- The OpCo is not supported"
+            schema: 
+              $ref: "#/definitions/A42Error"
+          404: 
+            description: "URI does not represent a recognised resource "
+            schema: 
+              $ref: "#/definitions/HTTP_404_Error"
+          405: 
+            description: "the request method is not supported by this  resource"
+            schema: 
+              $ref: "#/definitions/HTTP_405_Error"
+          406: 
+            description: "The Accept header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_406_Error"
+          413: 
+            description: "The  request payload exceeds a maximum size "
+            schema: 
+              $ref: "#/definitions/HTTP_413_Error"
+          414: 
+            description: "Request-URI is too long "
+            schema: 
+              $ref: "#/definitions/HTTP_414_Error"
+          415: 
+            description: "The value of the Content-Type header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_415_Error"
+          422: 
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema: 
+              $ref: "#/definitions/HTTP_422_Error"
+          500: 
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema: 
+              $ref: "#/definitions/A42GenericError"
+        security: 
+          - 
+            servicenotification: 
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_ALL"
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_ACCOUNT_NOTIFICATION"
+    /event/subscription: 
+      post: 
+        tags: 
+          - "create-subscription-notification"
+        summary: "Publishes a Subscription provisioning notification event to the OpCo"
+        description: "Notifies the OpCo of an MS Reseller Subscription has been provisioned"
+        operationId: "subscriptionNotificationUsingPOST"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/vnd.vodafone.a42+json"
+        parameters: 
+          - 
+            name: "Authorization"
+            in: "header"
+            description: "Purpose: Enables the developer application access to the request resource. Contains the APIX OAuth token as Bearer token"
+            required: true
+            type: "string"
+          - 
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          - 
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            in: "body"
+            name: "subscriptionEvent"
+            description: "subscriptionEvent"
+            required: true
+            schema: 
+              $ref: "#/definitions/SubscriptionEvent"
+        responses: 
+          200: 
+            description: "OK"
+            schema: 
+              type: "object"
+          400: 
+            description: "\n- The request is missing the mandatory parameter email \n- The request is missing the mandatory parameter status \n- The request is missing the mandatory parameter subscriptionId \n- The request is missing the mandatory parameter requestId \n- The request is missing the mandatory parameter partnerId \n- The request is missing the mandatory parameter partnerNodeId \n- The request is missing the mandatory parameter opcoId \n- The request payload is not in a valid JSON format \n- The Country is not supported"
+            schema: 
+              $ref: "#/definitions/A42Error"
+          404: 
+            description: "URI does not represent a recognised resource "
+            schema: 
+              $ref: "#/definitions/HTTP_404_Error"
+          405: 
+            description: "the request method is not supported by this  resource"
+            schema: 
+              $ref: "#/definitions/HTTP_405_Error"
+          406: 
+            description: "The Accept header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_406_Error"
+          413: 
+            description: "The  request payload exceeds a maximum size "
+            schema: 
+              $ref: "#/definitions/HTTP_413_Error"
+          414: 
+            description: "Request-URI is too long "
+            schema: 
+              $ref: "#/definitions/HTTP_414_Error"
+          415: 
+            description: "The value of the Content-Type header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_415_Error"
+          422: 
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema: 
+              $ref: "#/definitions/HTTP_422_Error"
+          500: 
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema: 
+              $ref: "#/definitions/A42GenericError"
+        security: 
+          - 
+            servicenotification: 
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_ALL"
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_SUBSCRIPTION_NOTIFICATION"
+      put: 
+        tags: 
+          - "update-subscription-notification"
+        summary: "Publishes a Subscription change notification event to the OpCo"
+        description: "Notifies the OpCo of an MS Reseller Subscription has changed"
+        operationId: "subscriptionUpdateNotificationUsingPUT"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/vnd.vodafone.a42+json"
+        parameters: 
+          - 
+            name: "Authorization"
+            in: "header"
+            description: "Purpose: Enables the developer application access to the request resource. Contains the APIX OAuth token as Bearer token"
+            required: true
+            type: "string"
+          - 
+            name: "Accept"
+            in: "header"
+            description: "Purpose: hint to indicate the client's preferred media type representation for the resource. If set the format of the header value must be able to be interpreted as a request for either a JSON or an A42 representation. If not an error with a HTTP status code of 406 is returned. See list of errors"
+            required: false
+            type: "string"
+          - 
+            name: "VF_TRACE_TRANSACTION_ID"
+            in: "header"
+            description: "Purpose: Enables requests from consumers to be captured end to end. Consumers should set this for every request. If not present a transaction id will be generated and returned in the VF_TRACE_TRANSACTION_ID response header. Otherwise the header is returned as a response header to the client with the same value as that of the inbound request header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            name: "VF_EXT_BP_ID"
+            in: "header"
+            description: "Purpose: Consumers should set the value of this header as a unique identifier per end-user use case in order to federate multiple transaction ids collected from the VF_TRACE_TRANSACTION_ID with the use case id set in this header. As per RFC 2616 this header is case insensitive"
+            required: false
+            type: "string"
+          - 
+            in: "body"
+            name: "subscriptionUpdateEvent"
+            description: "subscriptionUpdateEvent"
+            required: true
+            schema: 
+              $ref: "#/definitions/SubscriptionUpdateEvent"
+        responses: 
+          200: 
+            description: "OK"
+            schema: 
+              type: "object"
+          400: 
+            description: "\n- The request is missing the mandatory parameter email \n- The request is missing the mandatory parameter status \n- The request is missing the mandatory parameter subscriptionId \n- The request is missing the mandatory parameter partnerNodeId \n- The request is missing the mandatory parameter partnerId \n- The request is missing the mandatory parameter requestId \n- The request is missing the mandatory parameter opcoId \n- The request payload is not in a valid JSON format \n- The Country is not supported"
+            schema: 
+              $ref: "#/definitions/A42Error"
+          404: 
+            description: "URI does not represent a recognised resource "
+            schema: 
+              $ref: "#/definitions/HTTP_404_Error"
+          405: 
+            description: "the request method is not supported by this  resource"
+            schema: 
+              $ref: "#/definitions/HTTP_405_Error"
+          406: 
+            description: "The Accept header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_406_Error"
+          413: 
+            description: "The  request payload exceeds a maximum size "
+            schema: 
+              $ref: "#/definitions/HTTP_413_Error"
+          414: 
+            description: "Request-URI is too long "
+            schema: 
+              $ref: "#/definitions/HTTP_414_Error"
+          415: 
+            description: "The value of the Content-Type header is invalid "
+            schema: 
+              $ref: "#/definitions/HTTP_415_Error"
+          422: 
+            description: "The request was well-formed but was unable to be followed due to semantic errors "
+            schema: 
+              $ref: "#/definitions/HTTP_422_Error"
+          500: 
+            description: "The authorization server encountered an unexpected condition that prevented it fromfulfilling the request"
+            schema: 
+              $ref: "#/definitions/A42GenericError"
+        security: 
+          - 
+            servicenotification: 
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_ALL"
+              - "MS_PARTNER_CENTER_NOTIFICATIONS_SUBSCRIPTION_NOTIFICATION"
+  securityDefinitions: 
+    servicenotification: 
+      type: "oauth2"
+      tokenUrl: "http://apisit.developer.vodafone.com/oauth/token"
+      flow: "application"
+      scopes: 
+        MS_PARTNER_CENTER_NOTIFICATIONS_SUBSCRIPTION_NOTIFICATION: "Allows a developer to send notifications of creation of a Subscription create for a MS Customer/Reseller's  Account"
+        MS_PARTNER_CENTER_NOTIFICATIONS_SUBSCRIPTION_UPDATE_NOTIFICATION: "Allows a developer to send notifications of changes to a Subscription create for a MS Customer/Reseller's  Account"
+        MS_PARTNER_CENTER_NOTIFICATIONS_ACCOUNT_NOTIFICATION: "Allows a developer to send notifications of MS Customer/Reseller Accounts being created"
+        MS_PARTNER_CENTER_NOTIFICATIONS_ALL: "Allows a developer to notify an OpCo of changes to MS Accounts and Subscriptions"
+  definitions: 
+    HTTP_415_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Unsupported Media Type"
+        message: 
+          type: "string"
+          example: "Unsupported Media Type"
+        description: 
+          type: "string"
+          example: "The value of the Content-Type header is invalid"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    SubscriptionEvent: 
+      type: "object"
+      required: 
+        - "opcoId"
+        - "status"
+        - "subcriptionId"
+      properties: 
+        opcoId: 
+          type: "string"
+          example: "$opcoId"
+          description: "The OpCo id"
+        partnerId: 
+          type: "string"
+          example: "MS-CREST"
+          description: "The Customer's partner identifier"
+        partnerNodeId: 
+          type: "string"
+          example: "Subscription"
+          description: "The partnerNode Id"
+        requestId: 
+          type: "string"
+          example: "$requestId"
+          description: "The request Id"
+        status: 
+          type: "string"
+          example: "${Active|Pending|Disabled|Cancelled}"
+          description: "account status"
+        subcriptionId: 
+          type: "string"
+          example: "$subscriptionId"
+          description: "Subscription identifier"
+    SubscriptionNotificationLRT: 
+      type: "object"
+      required: 
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties: 
+        template: 
+          type: "string"
+          example: "https://{apix.endpoint}/v1/servicenotification/event/subscription"
+          description: "A42 template"
+        title: 
+          type: "string"
+          example: "Publishes a Subscription creation notification event to the OpCo"
+          description: "A42 title"
+        method: 
+          type: "string"
+          example: "POST"
+          description: "A42 HTTP Verb"
+        type: 
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data: 
+          $ref: "#/definitions/SubscriptionEvent"
+    HTTP_405_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Method Not Allowed"
+        message: 
+          type: "string"
+          example: "Method Not Allowed"
+        description: 
+          type: "string"
+          example: "the request method is not supported by this  resource"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    HTTP_406_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Not Acceptable"
+        message: 
+          type: "string"
+          example: "Not Acceptable"
+        description: 
+          type: "string"
+          example: "The Accept header is invalid"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    AccountEvent: 
+      type: "object"
+      required: 
+        - "adminUserName"
+        - "domainName"
+        - "opcoId"
+        - "partnerNodeId"
+        - "status"
+        - "temporaryAdminPassword"
+      properties: 
+        adminUserName: 
+          type: "string"
+          example: "$adminUserName"
+          description: "the admin user name"
+        customerId: 
+          type: "string"
+          example: "$customerId"
+          description: "The unique Customer Identifier"
+        domainName: 
+          type: "string"
+          example: "$domainName"
+          description: "the opco domain name"
+        opcoId: 
+          type: "string"
+          example: "$opcoId"
+          description: "The OpCo id"
+        partnerId: 
+          type: "string"
+          example: "MS-CREST"
+          description: "The Customer's partner identifier"
+        partnerNodeId: 
+          type: "string"
+          example: "Account"
+          description: "The partnerNode Id"
+        requestId: 
+          type: "string"
+          example: "$requestId"
+          description: "The request Id"
+        status: 
+          type: "string"
+          example: "${Active|Pending|Disabled|Cancelled}"
+          description: "account status"
+        temporaryAdminPassword: 
+          type: "string"
+          example: "$temporaryAdminPassword"
+          description: "temporary admin password"
+    HomeDocument: 
+      type: "object"
+      required: 
+        - "links"
+      properties: 
+        links: 
+          $ref: "#/definitions/HomeDocumentContainer"
+    HTTP_404_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Resource Not Found"
+        message: 
+          type: "string"
+          example: "Resource Not Found"
+        description: 
+          type: "string"
+          example: "URI does not represent a recognised resource"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    HTTP_429_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Too Many Requests"
+        message: 
+          type: "string"
+          example: "Too Many Requests"
+        description: 
+          type: "string"
+          example: "Api Quota limit reached"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    BaseEvent: 
+      type: "object"
+      required: 
+        - "opcoId"
+        - "status"
+      properties: 
+        opcoId: 
+          type: "string"
+          example: "$opcoId"
+          description: "The OpCo id"
+        partnerId: 
+          type: "string"
+          example: "MS-CREST"
+          description: "The Customer's partner identifier"
+        requestId: 
+          type: "string"
+          example: "$requestId"
+          description: "The request Id"
+        status: 
+          type: "string"
+          example: "${Active|Pending|Disabled|Cancelled}"
+          description: "account status"
+    HTTP_414_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Request URI Too Long"
+        message: 
+          type: "string"
+          example: "Request URI Too Long"
+        description: 
+          type: "string"
+          example: "Request-URI is too long"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    A42Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "invalid_request"
+        message: 
+          type: "string"
+          example: "invalid_request"
+        description: 
+          type: "string"
+          example: "missing mandatory query parameter in the request"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    HTTP_413_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Payload Too Large"
+        message: 
+          type: "string"
+          example: "Payload Too Large"
+        description: 
+          type: "string"
+          example: "The  request payload exceeds a maximum size"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    SubscriptionUpdateEvent: 
+      type: "object"
+      required: 
+        - "autoRenew"
+        - "billingId"
+        - "endEffectiveDate"
+        - "opcoId"
+        - "quantity"
+        - "startEffectiveDate"
+        - "status"
+        - "subscriptionId"
+      properties: 
+        autoRenew: 
+          type: "boolean"
+          example: "${true|false}"
+          description: "auto renew subscription flag"
+        billingId: 
+          type: "string"
+          example: "$billingId"
+          description: "billing identifier"
+        endEffectiveDate: 
+          type: "string"
+          format: "date"
+          example: "${DD-MM-YYThh:mm:ss}"
+          description: "effective end date"
+        opcoId: 
+          type: "string"
+          example: "$opcoId"
+          description: "The OpCo id"
+        partnerId: 
+          type: "string"
+          example: "MS-CREST"
+          description: "The Customer's partner identifier"
+        partnerNodeId: 
+          type: "string"
+          example: "SubscriptionUpdated"
+          description: "The partnerNode Id"
+        quantity: 
+          type: "integer"
+          format: "int32"
+          example: "$quantity"
+          description: "quantity ordered"
+        requestId: 
+          type: "string"
+          example: "$requestId"
+          description: "The request Id"
+        startEffectiveDate: 
+          type: "string"
+          format: "date"
+          example: "${DD-MM-YYThh:mm:ss}"
+          description: "effective start date"
+        status: 
+          type: "string"
+          example: "${Active|Pending|Disabled|Cancelled}"
+          description: "account status"
+        subscriptionId: 
+          type: "string"
+          example: "$subscriptionId"
+          description: "Subscription identifier"
+    LinkRelation: 
+      type: "object"
+      required: 
+        - "title"
+      properties: 
+        data: 
+          $ref: "#/definitions/BaseEvent"
+        describedBy: 
+          type: "string"
+        method: 
+          type: "string"
+        template: 
+          type: "string"
+        title: 
+          type: "string"
+          description: "my title"
+        type: 
+          type: "string"
+    HomeDocumentContainer: 
+      type: "object"
+      properties: 
+        http://a42.vodafone.com/rels/servicenotification/event/create-account: 
+          $ref: "#/definitions/AccountNotificationLRT"
+        http://a42.vodafone.com/rels/servicenotification/event/create-subscription: 
+          $ref: "#/definitions/SubscriptionNotificationLRT"
+        http://a42.vodafone.com/rels/servicenotification/event/update-subscription: 
+          $ref: "#/definitions/SubscriptionUpdateNotificationLRT"
+    ErrorHelpLink: 
+      type: "object"
+      required: 
+        - "href"
+      properties: 
+        href: 
+          type: "string"
+          example: "http://{dev_portal_domain}/{error_documentation_endpoint}"
+          description: "Help href link on Developer Portal "
+    LinkRelationTypes: 
+      type: "object"
+      properties: 
+        links: 
+          type: "object"
+          additionalProperties: 
+            $ref: "#/definitions/LinkRelation"
+    A42GenericError: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "server_error"
+        message: 
+          type: "string"
+          example: "server_error"
+        description: 
+          type: "string"
+          example: "The authorization server encountered an unexpected condition that prevented it from fulfilling the request"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    AccountNotificationLRT: 
+      type: "object"
+      required: 
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties: 
+        template: 
+          type: "string"
+          example: "https://{apix.endpoint}/v1/servicenotification/event/account"
+          description: "A42 template"
+        title: 
+          type: "string"
+          example: "Publishes an Account notification event to the OpCo"
+          description: "A42 title"
+        method: 
+          type: "string"
+          example: "POST"
+          description: "A42 HTTP Verb"
+        type: 
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data: 
+          $ref: "#/definitions/AccountEvent"
+    HTTP_422_Error: 
+      type: "object"
+      required: 
+        - "description"
+        - "error"
+        - "links"
+        - "message"
+        - "transactionId"
+      properties: 
+        links: 
+          $ref: "#/definitions/ErrorHelpLink"
+        error: 
+          type: "string"
+          example: "Unprocessable Entity"
+        message: 
+          type: "string"
+          example: "Unprocessable Entity"
+        description: 
+          type: "string"
+          example: "The request was well-formed but was unable to be followed due to semantic errors"
+        transactionId: 
+          type: "string"
+          example: "2f21-1fwef2-af2313-23feda"
+    SubscriptionUpdateNotificationLRT: 
+      type: "object"
+      required: 
+        - "data"
+        - "method"
+        - "template"
+        - "title"
+        - "type"
+      properties: 
+        template: 
+          type: "string"
+          example: "https://{apix.endpoint}/v1/servicenotification/event/subscription"
+          description: "A42 template"
+        title: 
+          type: "string"
+          example: "Publishes a Subscription change notification event to the OpCo"
+          description: "A42 title"
+        method: 
+          type: "string"
+          example: "PUT"
+          description: "A42 HTTP Verb"
+        type: 
+          type: "string"
+          example: "application/vnd.vodafone.com.a42+json"
+          description: "A42 media type"
+        data: 
+          $ref: "#/definitions/SubscriptionUpdateEvent"
+
